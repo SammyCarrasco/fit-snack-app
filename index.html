@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#2D5A27">
+  <title>Fit Snack | Come rico, vive saludable</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-contenedor">
+    <!-- Cabecera superior tipo App -->
+    <header class="app-header">
+      <div class="marca-info">
+        <span class="marca-icono">🌿</span>
+        <div>
+          <h1>Fit Snack</h1>
+          <p>Come rico, vive saludable</p>
+        </div>
+      </div>
+      <button class="btn-carrito-top" onclick="cambiarVista('pedido')" aria-label="Ver carrito">
+        🛒 <span id="contador-carrito">0</span>
+      </button>
+    </header>
+
+    <!-- Contenido principal dinámico -->
+    <main class="app-contenido">
+      
+      <!-- SECCIÓN 1: INICIO -->
+      <section id="vista-inicio" class="vista activa">
+        <div class="banner-hero">
+          <span class="etiqueta-hero">100% Natural • Hecho en Honduras</span>
+          <h2>Snacks frescos para nutrir tu día</h2>
+          <p>Ingredientes reales, sin conservantes artificiales y listos para llevar.</p>
+          <button class="btn-primario" onclick="cambiarVista('tienda')">Explorar catálogo</button>
+        </div>
+
+        <div class="resumen-metricas">
+          <div class="metrica-card">
+            <strong id="total-productos-inicio">10</strong>
+            <span>Productos</span>
+          </div>
+          <div class="metrica-card">
+            <strong id="total-ofertas-inicio">5</strong>
+            <span>En oferta</span>
+          </div>
+        </div>
+
+        <div class="titulo-bloque">
+          <h3>Ofertas destacadas</h3>
+          <button class="btn-enlace" onclick="cambiarVista('tienda')">Ver todos →</button>
+        </div>
+        <div id="lista-ofertas" class="grid-productos"></div>
+      </section>
+
+      <!-- SECCIÓN 2: TIENDA -->
+      <section id="vista-tienda" class="vista">
+        <h2>Tienda Fit Snack</h2>
+        <div class="barra-filtros">
+          <input type="text" id="buscador-productos" placeholder="Buscar snack..." oninput="filtrarTienda()">
+          <select id="filtro-categoria" onchange="filtrarTienda()">
+            <option value="Todas">Todas</option>
+            <option value="Dips y Untables">Dips y Untables</option>
+            <option value="Bocaditos Fit">Bocaditos Fit</option>
+            <option value="Chips y Deshidratados">Chips y Deshidratados</option>
+            <option value="Granolas y Cereales">Granolas y Cereales</option>
+            <option value="Lácteos Naturales">Lácteos Naturales</option>
+          </select>
+        </div>
+        <div id="lista-tienda" class="lista-vertical"></div>
+      </section>
+
+      <!-- SECCIÓN 3: COMBOS -->
+      <section id="vista-combos" class="vista">
+        <h2>Combos y Planes</h2>
+        <p class="subtitulo-vista">Ahorra combinando tus snacks favoritos de la semana.</p>
+        <div id="lista-combos" class="lista-vertical"></div>
+      </section>
+
+      <!-- SECCIÓN 4: PEDIDO Y CARRITO -->
+      <section id="vista-pedido" class="vista">
+        <h2>Tu Carrito y Pedidos</h2>
+
+        <!-- Bloque de Carrito -->
+        <div class="card-blanca">
+          <div class="cabecera-carrito">
+            <h3>Tu carrito actual</h3>
+            <button class="btn-texto-peligro" onclick="vaciarCarrito()">Vaciar</button>
+          </div>
+          <div id="contenedor-items-carrito"></div>
+          <div class="total-carrito-fila">
+            <span>Total a pagar:</span>
+            <strong id="total-carrito-monto">L 0.00</strong>
+          </div>
+          <button id="btn-abrir-checkout" class="btn-primario btn-ancho" onclick="abrirModalPedido()" disabled>
+            Confirmar pedido con este carrito
+          </button>
+        </div>
+
+        <!-- Historial de Pedidos -->
+        <div class="titulo-bloque">
+          <h3>Historial de pedidos</h3>
+        </div>
+        <div id="lista-pedidos-historial" class="lista-vertical"></div>
+      </section>
+
+      <!-- SECCIÓN 5: MENÚ MÁS (Acceso a las 5 secciones extra) -->
+      <section id="vista-mas" class="vista">
+        <h2>Más sobre Fit Snack</h2>
+        <p class="subtitulo-vista">Información, nutrición y atención al cliente.</p>
+        
+        <div class="menu-extra-lista">
+          <button class="item-menu-extra" onclick="cambiarVista('ingredientes')">
+            <span class="icono-extra">🥗</span>
+            <div>
+              <strong>Ingredientes y Conservación</strong>
+              <small>Vida útil, refrigeración y tablas nutricionales</small>
+            </div>
+            <span>›</span>
+          </button>
+
+          <button class="item-menu-extra" onclick="cambiarVista('esencia')">
+            <span class="icono-extra">🌱</span>
+            <div>
+              <strong>Nuestra Esencia</strong>
+              <small>Misión, visión y compromiso con productores locales</small>
+            </div>
+            <span>›</span>
+          </button>
+
+          <button class="item-menu-extra" onclick="cambiarVista('suscripciones')">
+            <span class="icono-extra">📦</span>
+            <div>
+              <strong>Mis Suscripciones</strong>
+              <small>Entregas semanales recurrentes con descuento</small>
+            </div>
+            <span>›</span>
+          </button>
+
+          <button class="item-menu-extra" onclick="cambiarVista('faq')">
+            <span class="icono-extra">❓</span>
+            <div>
+              <strong>Preguntas Frecuentes</strong>
+              <small>Envíos, métodos de pago y zonas de cobertura</small>
+            </div>
+            <span>›</span>
+          </button>
+
+          <button class="item-menu-extra" onclick="cambiarVista('contacto')">
+            <span class="icono-extra">📞</span>
+            <div>
+              <strong>Contacto y Soporte</strong>
+              <small>WhatsApp directo, horarios y ubicación</small>
+            </div>
+            <span>›</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- SECCIÓN EXTRA 6: INGREDIENTES Y CONSERVACIÓN -->
+      <section id="vista-ingredientes" class="vista">
+        <button class="btn-volver" onclick="cambiarVista('mas')">← Volver a Más</button>
+        <h2>Ingredientes y Conservación</h2>
+        <div class="card-blanca">
+          <h4>Dips y Untables (Hummus)</h4>
+          <p>Garbanzo cocido, tahini artesanal, aceite de oliva extra virgen, ajo fresco y limón. <strong>Vida útil:</strong> 3 a 5 días en refrigeración (2°C - 5°C).</p>
+        </div>
+        <div class="card-blanca">
+          <h4>Chips Horneadas de Camote</h4>
+          <p>Camote hondureño seleccionado, pizca de sal marina y aceite de coco. Sin frituras. <strong>Vida útil:</strong> 45 días en empaque sellado.</p>
+        </div>
+        <div class="card-blanca">
+          <h4>Bolitas Energéticas y Granolas</h4>
+          <p>Avena integral, miel de abeja pura, cacao nibs, semillas de chía y mantequilla de maní natural. <strong>Vida útil:</strong> 21 a 30 días en lugar fresco y seco.</p>
+        </div>
+      </section>
+
+      <!-- SECCIÓN EXTRA 7: NUESTRA ESENCIA -->
+      <section id="vista-esencia" class="vista">
+        <button class="btn-volver" onclick="cambiarVista('mas')">← Volver a Más</button>
+        <h2>Nuestra Esencia</h2>
+        <div class="card-blanca">
+          <h4>¿Quiénes somos?</h4>
+          <p>Fit Snack nace en Honduras con el propósito de transformar la merienda diaria en una experiencia saludable, práctica y accesible, apoyando cultivos locales.</p>
+        </div>
+        <div class="card-blanca">
+          <h4>Misión</h4>
+          <p>Elaborar snacks naturales libres de aditivos químicos que nutran el cuerpo sin sacrificar el sabor.</p>
+        </div>
+        <div class="card-blanca">
+          <h4>Visión</h4>
+          <p>Ser la marca referente de alimentación saludable y conveniente en hogares, oficinas y universidades de Honduras.</p>
+        </div>
+      </section>
+
+      <!-- SECCIÓN EXTRA 8: MIS SUSCRIPCIONES -->
+      <section id="vista-suscripciones" class="vista">
+        <button class="btn-volver" onclick="cambiarVista('mas')">← Volver a Más</button>
+        <h2>Mis Suscripciones</h2>
+        <div class="card-blanca">
+          <span class="badge-verde">Activa</span>
+          <h4>Plan Oficina Saludable (Semanal)</h4>
+          <p>Entrega todos los lunes • 5 snacks variados + 2 dips.</p>
+          <p><strong>Inversión:</strong> L 320.00 / semana</p>
+        </div>
+        <div class="card-blanca">
+          <h4>¿Quieres activar una suscripción?</h4>
+          <p>Puedes agregar cualquier combo semanal desde la sección Combos y marcar entrega recurrente en tu pedido.</p>
+          <button class="btn-primario" onclick="cambiarVista('combos')">Ver combos disponibles</button>
+        </div>
+      </section>
+
+      <!-- SECCIÓN EXTRA 9: PREGUNTAS FRECUENTES -->
+      <section id="vista-faq" class="vista">
+        <button class="btn-volver" onclick="cambiarVista('mas')">← Volver a Más</button>
+        <h2>Preguntas Frecuentes</h2>
+        <div class="card-blanca">
+          <h4>¿Cuáles son los métodos de pago?</h4>
+          <p>Aceptamos pago contra entrega en efectivo, transferencia bancaria (BAC, Ficohsa, Atlántida) y enlace de pago.</p>
+        </div>
+        <div class="card-blanca">
+          <h4>¿Cuánto tarda el envío?</h4>
+          <p>Los pedidos confirmados antes de las 2:00 PM se entregan el mismo día. Pedidos posteriores salen a primera hora del día siguiente.</p>
+        </div>
+        <div class="card-blanca">
+          <h4>¿Tienen opciones sin azúcar añadida?</h4>
+          <p>Sí, todos nuestros productos se endulzan únicamente con miel pura, dátiles o fruta natural.</p>
+        </div>
+      </section>
+
+      <!-- SECCIÓN EXTRA 10: CONTACTO -->
+      <section id="vista-contacto" class="vista">
+        <button class="btn-volver" onclick="cambiarVista('mas')">← Volver a Más</button>
+        <h2>Contacto y Atención</h2>
+        <div class="card-blanca">
+          <p><strong>📍 Ubicación:</strong> Danlí y Tegucigalpa, Honduras</p>
+          <p><strong>🕒 Horario:</strong> Lunes a Sábado de 8:00 AM a 6:00 PM</p>
+          <p><strong>📱 WhatsApp:</strong> +504 9999-0000</p>
+          <p><strong>✉️ Correo:</strong> pedidos@fitsnackhn.com</p>
+        </div>
+        <form class="card-blanca" onsubmit="enviarMensajeContacto(event)">
+          <h4>Envíanos un mensaje rápido</h4>
+          <div class="grupo-form">
+            <label>Tu nombre</label>
+            <input type="text" id="contacto-nombre" required placeholder="Ej. María López">
+          </div>
+          <div class="grupo-form">
+            <label>Consulta o sugerencia</label>
+            <textarea id="contacto-mensaje" rows="3" required placeholder="Escribe tu mensaje..."></textarea>
+          </div>
+          <button type="submit" class="btn-primario btn-ancho">Enviar consulta</button>
+        </form>
+      </section>
+
+    </main>
+
+    <!-- Barra de navegación inferior fija -->
+    <nav class="nav-inferior">
+      <button class="nav-btn activo" data-vista="inicio" onclick="cambiarVista('inicio')">
+        <span>🏠</span>
+        <small>Inicio</small>
+      </button>
+      <button class="nav-btn" data-vista="tienda" onclick="cambiarVista('tienda')">
+        <span>🛍️</span>
+        <small>Tienda</small>
+      </button>
+      <button class="nav-btn" data-vista="combos" onclick="cambiarVista('combos')">
+        <span>📦</span>
+        <small>Combos</small>
+      </button>
+      <button class="nav-btn" data-vista="pedido" onclick="cambiarVista('pedido')">
+        <span>🛒</span>
+        <small>Pedido</small>
+      </button>
+      <button class="nav-btn" data-vista="mas" onclick="cambiarVista('mas')">
+        <span>☰</span>
+        <small>Más</small>
+      </button>
+    </nav>
+  </div>
+
+  <!-- MODAL DETALLE DE PRODUCTO -->
+  <div id="modal-detalle" class="modal-fondo oculto" onclick="cerrarModalSiFondo(event, 'modal-detalle')">
+    <div class="modal-caja">
+      <button class="btn-cerrar-modal" onclick="cerrarModal('modal-detalle')">✕</button>
+      <div id="contenido-modal-detalle"></div>
+    </div>
+  </div>
+
+  <!-- MODAL CONFIRMAR NUEVO PEDIDO -->
+  <div id="modal-checkout" class="modal-fondo oculto" onclick="cerrarModalSiFondo(event, 'modal-checkout')">
+    <div class="modal-caja">
+      <button class="btn-cerrar-modal" onclick="cerrarModal('modal-checkout')">✕</button>
+      <h3>Finalizar Pedido</h3>
+      <form id="form-nuevo-pedido" onsubmit="procesarPedido(event)">
+        <div class="grupo-form">
+          <label>Nombre completo del cliente</label>
+          <input type="text" id="pedido-cliente" required placeholder="Ej. Carlos Rivera">
+        </div>
+        <div class="grupo-form">
+          <label>Teléfono / WhatsApp</label>
+          <input type="tel" id="pedido-telefono" required placeholder="Ej. 9876-5432">
+        </div>
+        <div class="grupo-form">
+          <label>Resumen del carrito</label>
+          <div id="resumen-checkout-items" class="caja-resumen-texto"></div>
+        </div>
+        <div class="grupo-form">
+          <label>Método de pago</label>
+          <select id="pedido-pago">
+            <option value="Contra entrega">Contra entrega (Efectivo)</option>
+            <option value="Transferencia bancaria">Transferencia bancaria</option>
+          </select>
+        </div>
+        <div class="grupo-form">
+          <label>Dirección de entrega</label>
+          <textarea id="pedido-direccion" rows="2" required placeholder="Colonia, bloque, referencia..."></textarea>
+        </div>
+        <div class="grupo-form">
+          <label>Código promocional (Opcional)</label>
+          <input type="text" id="pedido-promo" placeholder="Ej. FIT10">
+        </div>
+        <button type="submit" class="btn-primario btn-ancho">Guardar y enviar pedido</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Notificación flotante -->
+  <div id="toast-notificacion" class="toast oculto"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
