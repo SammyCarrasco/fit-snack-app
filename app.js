@@ -1,220 +1,98 @@
-// Catálogo de productos Fit Snack (Precios en Lempiras)
+// ==========================================================
+// Fit Snack - app.js (versión mejorada)
+// Mantiene los mismos nombres de funciones que usa index.html
+// ==========================================================
+
+// ---------- CONFIGURACIÓN (edita aquí) ----------
+// Número de WhatsApp del negocio con código de país, sin + ni guiones. Ej: "50498765432"
+// Si lo dejas vacío, los pedidos solo se guardan en la app.
+const NUMERO_WHATSAPP = "";
+// Códigos promocionales: código → porcentaje de descuento
+const CODIGOS_PROMO = { FIT10: 0.10 };
+
+// ---------- Utilidades ----------
+const esc = (t) => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const lempiras = (n) => `L ${Number(n).toFixed(2)}`;
+
+function leerStorage(clave, defecto) {
+  try {
+    const valor = JSON.parse(localStorage.getItem(clave));
+    return valor ?? defecto;
+  } catch (e) {
+    return defecto;
+  }
+}
+
+function guardarStorage(clave, valor) {
+  try { localStorage.setItem(clave, JSON.stringify(valor)); } catch (e) { /* almacenamiento lleno o bloqueado */ }
+}
+
+// ---------- Catálogo (Precios en Lempiras) ----------
+// [id, nombre, categoría, precio, precio anterior, vida útil, descripción, imagen, emoji]
 const productosFitSnack = [
-  {
-    id: 1,
-    nombre: "Hummus Clásico con Bastones de Zanahoria",
-    categoria: "Dips y Untables",
-    precio: 70,
-    precioAnterior: 85,
-    enOferta: true,
-    vidaUtil: "3-5 días refrigerado",
-    descripcion: "Dip cremoso de garbanzo con tahini artesanal, limón y bastones frescos de zanahoria.",
-    imagen: "img/hummus.jpg",
-    emoji: "🥕"
-  },
-  {
-    id: 2,
-    nombre: "Bolitas Energéticas de Cacao y Avena",
-    categoria: "Bocaditos Fit",
-    precio: 50,
-    precioAnterior: null,
-    enOferta: false,
-    vidaUtil: "21 días",
-    descripcion: "Trufas energéticas crudas con avena integral, cacao nibs, chía y miel pura.",
-    imagen: "img/bolitas.jpg",
-    emoji: "🍫"
-  },
-  {
-    id: 3,
-    nombre: "Chips Horneadas de Camote",
-    categoria: "Chips y Deshidratados",
-    precio: 38,
-    precioAnterior: 50,
-    enOferta: true,
-    vidaUtil: "45 días",
-    descripcion: "Finas láminas de camote hondureño horneadas con un toque de sal marina.",
-    imagen: "img/camote.jpg",
-    emoji: "🍠"
-  },
-  {
-    id: 4,
-    nombre: "Granola Artesanal Miel y Almendras",
-    categoria: "Granolas y Cereales",
-    precio: 99,
-    precioAnterior: 120,
-    enOferta: true,
-    vidaUtil: "30 días",
-    descripcion: "Hojuelas de avena tostadas con almendras fileteadas, semillas de calabaza y miel.",
-    imagen: "img/granola.jpg",
-    emoji: "🥣"
-  },
-  {
-    id: 5,
-    nombre: "Yogur Griego Natural con Frutos Rojos",
-    categoria: "Lácteos Naturales",
-    precio: 75,
-    precioAnterior: null,
-    enOferta: false,
-    vidaUtil: "7 días refrigerado",
-    descripcion: "Yogur griego alto en proteína sin azúcar refinada con compota natural de fresas y moras.",
-    imagen: "img/yogur.jpg",
-    emoji: "🍓"
-  },
-  {
-    id: 6,
-    nombre: "Mix de Frutos Secos y Semillas",
-    categoria: "Bocaditos Fit",
-    precio: 65,
-    precioAnterior: 80,
-    enOferta: true,
-    vidaUtil: "60 días",
-    descripcion: "Mezcla balanceada de marañón hondureño, almendras, nueces y arándanos deshidratados.",
-    imagen: "img/mix-frutos.jpg",
-    emoji: "🥜"
-  },
-  {
-    id: 7,
-    nombre: "Chips de Plátano Verde al Horno",
-    categoria: "Chips y Deshidratados",
-    precio: 35,
-    precioAnterior: null,
-    enOferta: false,
-    vidaUtil: "45 días",
-    descripcion: "Tostones crujientes de plátano verde sin fritura, ideales para acompañar con dips.",
-    imagen: "img/platano.jpg",
-    emoji: "🍌"
-  },
-  {
-    id: 8,
-    nombre: "Guacamole Fresco con Totopos Horneados",
-    categoria: "Dips y Untables",
-    precio: 85,
-    precioAnterior: 95,
-    enOferta: true,
-    vidaUtil: "2 días refrigerado",
-    descripcion: "Aguacate Hass machacado al momento con pico de gallo y totopos de maíz horneados.",
-    imagen: "img/guacamole.jpg",
-    emoji: "🥑"
-  },
-  {
-    id: 9,
-    nombre: "Barras de Avena y Mantequilla de Maní",
-    categoria: "Granolas y Cereales",
-    precio: 45,
-    precioAnterior: null,
-    enOferta: false,
-    vidaUtil: "25 días",
-    descripcion: "Barra energética horneada con maní 100% natural, avena y chispas de chocolate oscuro.",
-    imagen: "img/barra-mani.jpg",
-    emoji: "🌾"
-  },
-  {
-    id: 10,
-    nombre: "Pudín de Chía con Mango Tropical",
-    categoria: "Lácteos Naturales",
-    precio: 68,
-    precioAnterior: null,
-    enOferta: false,
-    vidaUtil: "4 días refrigerado",
-    descripcion: "Semillas de chía hidratadas en leche de coco con puré de mango maduro de temporada.",
-    imagen: "img/chia-mango.jpg",
-    emoji: "🥭"
-  }
-];
+  [1, "Hummus Clásico con Bastones de Zanahoria", "Dips y Untables", 70, 85, "3-5 días refrigerado", "Dip cremoso de garbanzo con tahini artesanal, limón y bastones frescos de zanahoria.", "img/hummus.jpg", "🥕"],
+  [2, "Bolitas Energéticas de Cacao y Avena", "Bocaditos Fit", 50, null, "21 días", "Trufas energéticas crudas con avena integral, cacao nibs, chía y miel pura.", "img/bolitas.jpg", "🍫"],
+  [3, "Chips Horneadas de Camote", "Chips y Deshidratados", 38, 50, "45 días", "Finas láminas de camote hondureño horneadas con un toque de sal marina.", "img/camote.jpg", "🍠"],
+  [4, "Granola Artesanal Miel y Almendras", "Granolas y Cereales", 99, 120, "30 días", "Hojuelas de avena tostadas con almendras fileteadas, semillas de calabaza y miel.", "img/granola.jpg", "🥣"],
+  [5, "Yogur Griego Natural con Frutos Rojos", "Lácteos Naturales", 75, null, "7 días refrigerado", "Yogur griego alto en proteína sin azúcar refinada con compota natural de fresas y moras.", "img/yogur.jpg", "🍓"],
+  [6, "Mix de Frutos Secos y Semillas", "Bocaditos Fit", 65, 80, "60 días", "Mezcla balanceada de marañón hondureño, almendras, nueces y arándanos deshidratados.", "img/mix-frutos.jpg", "🥜"],
+  [7, "Chips de Plátano Verde al Horno", "Chips y Deshidratados", 35, null, "45 días", "Tostones crujientes de plátano verde sin fritura, ideales para acompañar con dips.", "img/platano.jpg", "🍌"],
+  [8, "Guacamole Fresco con Totopos Horneados", "Dips y Untables", 85, 95, "2 días refrigerado", "Aguacate Hass machacado al momento con pico de gallo y totopos de maíz horneados.", "img/guacamole.jpg", "🥑"],
+  [9, "Barras de Avena y Mantequilla de Maní", "Granolas y Cereales", 45, null, "25 días", "Barra energética horneada con maní 100% natural, avena y chispas de chocolate oscuro.", "img/barra-mani.jpg", "🌾"],
+  [10, "Pudín de Chía con Mango Tropical", "Lácteos Naturales", 68, null, "4 días refrigerado", "Semillas de chía hidratadas en leche de coco con puré de mango maduro de temporada.", "img/chia-mango.jpg", "🥭"]
+].map(([id, nombre, categoria, precio, precioAnterior, vidaUtil, descripcion, imagen, emoji]) =>
+  ({ id, nombre, categoria, precio, precioAnterior, enOferta: precioAnterior !== null, vidaUtil, descripcion, imagen, emoji }));
 
-// Combos disponibles
 const combosFitSnack = [
-  {
-    id: 101,
-    nombre: "Combo Oficina Fit (5 Días)",
-    categoria: "Combo Semanal",
-    precio: 290,
-    precioAnterior: 340,
-    vidaUtil: "Consumo semanal",
-    descripcion: "Incluye 2 Chips de Camote, 1 Mix de Frutos Secos, 1 Bolitas Energéticas y 1 Hummus Clásico.",
-    imagen: "img/combo-oficina.jpg",
-    emoji: "💼"
-  },
-  {
-    id: 102,
-    nombre: "Combo Dips & Crunch",
-    categoria: "Para Compartir",
-    precio: 145,
-    precioAnterior: 170,
-    vidaUtil: "3 días refrigerado",
-    descripcion: "1 Hummus Clásico + 1 Guacamole Fresco + 2 bolsas de Chips de Plátano Verde al Horno.",
-    imagen: "img/combo-dips.jpg",
-    emoji: "🥗"
-  },
-  {
-    id: 103,
-    nombre: "Combo Desayuno Saludable",
-    categoria: "Mañanas Fit",
-    precio: 160,
-    precioAnterior: 185,
-    vidaUtil: "7 días refrigerado",
-    descripcion: "1 Granola Artesanal de Miel + 1 Yogur Griego con Frutos Rojos + 1 Pudín de Chía.",
-    imagen: "img/combo-desayuno.jpg",
-    emoji: "☀️"
-  }
-];
+  [101, "Combo Oficina Fit (5 Días)", "Combo Semanal", 290, 340, "Consumo semanal", "Incluye 2 Chips de Camote, 1 Mix de Frutos Secos, 1 Bolitas Energéticas y 1 Hummus Clásico.", "img/combo-oficina.jpg", "💼"],
+  [102, "Combo Dips & Crunch", "Para Compartir", 145, 170, "3 días refrigerado", "1 Hummus Clásico + 1 Guacamole Fresco + 2 bolsas de Chips de Plátano Verde al Horno.", "img/combo-dips.jpg", "🥗"],
+  [103, "Combo Desayuno Saludable", "Mañanas Fit", 160, 185, "7 días refrigerado", "1 Granola Artesanal de Miel + 1 Yogur Griego con Frutos Rojos + 1 Pudín de Chía.", "img/combo-desayuno.jpg", "☀️"]
+].map(([id, nombre, categoria, precio, precioAnterior, vidaUtil, descripcion, imagen, emoji]) =>
+  ({ id, nombre, categoria, precio, precioAnterior, vidaUtil, descripcion, imagen, emoji }));
 
-// Estado global almacenado en localStorage
-let carrito = JSON.parse(localStorage.getItem("fitsnack_carrito")) || [];
-let pedidosHistorial = JSON.parse(localStorage.getItem("fitsnack_pedidos")) || [
-  {
-    id: "PED-104",
-    cliente: "Rodrigo Mendoza",
-    telefono: "9812-4410",
-    detalle: "Granola Artesanal Miel y Almendras × 1",
-    total: 99,
-    pago: "Contra entrega",
-    estado: "Pendiente",
-    fecha: "Hoy"
-  },
-  {
-    id: "PED-103",
-    cliente: "Andrea Zelaya",
-    telefono: "3345-8821",
-    detalle: "Yogur Griego Natural × 1",
-    total: 75,
-    pago: "Contra entrega",
-    estado: "Pendiente",
-    fecha: "Hoy"
-  },
-  {
-    id: "PED-102",
-    cliente: "Carlos Rivera",
-    telefono: "8890-1234",
-    detalle: "Mix de Frutos Secos × 2",
-    total: 130,
-    pago: "Transferencia bancaria",
-    estado: "Entregado",
-    fecha: "Ayer"
-  }
-];
+// ---------- Estado (guardado en localStorage) ----------
+let carrito = leerStorage("fitsnack_carrito", []);
+let pedidosHistorial = leerStorage("fitsnack_pedidos", [
+  { id: "PED-104", cliente: "Rodrigo Mendoza", telefono: "9812-4410", detalle: "Granola Artesanal Miel y Almendras × 1", total: 99, pago: "Contra entrega", estado: "Pendiente", fecha: "Hoy" },
+  { id: "PED-103", cliente: "Andrea Zelaya", telefono: "3345-8821", detalle: "Yogur Griego Natural × 1", total: 75, pago: "Contra entrega", estado: "Pendiente", fecha: "Hoy" },
+  { id: "PED-102", cliente: "Carlos Rivera", telefono: "8890-1234", detalle: "Mix de Frutos Secos × 2", total: 130, pago: "Transferencia bancaria", estado: "Entregado", fecha: "Ayer" }
+]);
 
-// Inicialización al cargar la página
+// ---------- Inicialización ----------
 document.addEventListener("DOMContentLoaded", () => {
   renderizarOfertas();
   renderizarTienda(productosFitSnack);
   renderizarCombos();
   actualizarVistaCarrito();
   renderizarHistorialPedidos();
+
+  // El resumen del checkout se actualiza mientras se escribe el código promo
+  document.getElementById("pedido-promo").addEventListener("input", renderizarResumenCheckout);
+
+  // Cerrar ventanas con la tecla Escape
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      cerrarModal("modal-detalle");
+      cerrarModal("modal-checkout");
+    }
+  });
 });
 
-// Navegación entre pantallas
+// Registro del service worker (permite instalar la app y usarla sin conexión)
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("sw.js").catch(() => {});
+  });
+}
+
+// ---------- Navegación ----------
 function cambiarVista(nombreVista) {
   document.querySelectorAll(".vista").forEach(sec => sec.classList.remove("activa"));
   const destino = document.getElementById(`vista-${nombreVista}`);
-  if (destino) {
-    destino.classList.add("activa");
-  }
+  if (destino) destino.classList.add("activa");
 
-  // Marcar botón activo en barra inferior
   const vistasExtra = ["ingredientes", "esencia", "suscripciones", "faq", "contacto"];
   const tabActiva = vistasExtra.includes(nombreVista) ? "mas" : nombreVista;
-
   document.querySelectorAll(".nav-btn").forEach(btn => {
     btn.classList.toggle("activo", btn.dataset.vista === tabActiva);
   });
@@ -222,32 +100,31 @@ function cambiarVista(nombreVista) {
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
-// Helper para mostrar imagen o emoji de respaldo si la foto aún no existe
+// Imagen del producto, con emoji de respaldo si la foto no carga
 function crearHtmlImagen(item) {
   return `
-    <img src="${item.imagen}" alt="${item.nombre}" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+    <img src="${esc(item.imagen)}" alt="${esc(item.nombre)}" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
     <span style="display:none; font-size:2.2rem; align-items:center; justify-content:center; width:100%; height:100%;">${item.emoji}</span>
   `;
 }
 
-// Renderizar ofertas en Inicio
+// ---------- Inicio ----------
 function renderizarOfertas() {
   const ofertas = productosFitSnack.filter(p => p.enOferta);
   document.getElementById("total-productos-inicio").textContent = productosFitSnack.length;
   document.getElementById("total-ofertas-inicio").textContent = ofertas.length;
 
-  const contenedor = document.getElementById("lista-ofertas");
-  contenedor.innerHTML = ofertas.map(prod => `
+  document.getElementById("lista-ofertas").innerHTML = ofertas.map(prod => `
     <article class="card-producto-grid">
       <div class="img-producto-box" onclick="verDetalleItem(${prod.id}, 'producto')">
-        <span class="badge-oferta">Oferta</span>
+        <span class="badge-oferta">-${Math.round((1 - prod.precio / prod.precioAnterior) * 100)}%</span>
         ${crearHtmlImagen(prod)}
       </div>
       <div class="info-producto-grid">
-        <h4 onclick="verDetalleItem(${prod.id}, 'producto')">${prod.nombre}</h4>
+        <h4 onclick="verDetalleItem(${prod.id}, 'producto')">${esc(prod.nombre)}</h4>
         <div class="precio-linea">
-          L ${prod.precio.toFixed(2)}
-          ${prod.precioAnterior ? `<span class="precio-anterior">L ${prod.precioAnterior}</span>` : ""}
+          ${lempiras(prod.precio)}
+          <span class="precio-anterior">L ${prod.precioAnterior}</span>
         </div>
         <button class="btn-primario" onclick="agregarAlCarrito(${prod.id}, 'producto')">+ Agregar</button>
       </div>
@@ -255,11 +132,11 @@ function renderizarOfertas() {
   `).join("");
 }
 
-// Renderizar catálogo de Tienda
+// ---------- Tienda ----------
 function renderizarTienda(lista) {
   const contenedor = document.getElementById("lista-tienda");
   if (lista.length === 0) {
-    contenedor.innerHTML = `<p class="card-blanca">No se encontraron snacks con ese filtro.</p>`;
+    contenedor.innerHTML = `<p class="card-blanca">No encontramos snacks con ese filtro. Prueba con otra palabra o categoría.</p>`;
     return;
   }
 
@@ -269,11 +146,11 @@ function renderizarTienda(lista) {
         ${crearHtmlImagen(prod)}
       </div>
       <div class="card-horizontal-info">
-        <small>${prod.categoria}</small>
-        <h4 onclick="verDetalleItem(${prod.id}, 'producto')">${prod.nombre}</h4>
-        <p>Vida útil: ${prod.vidaUtil}</p>
+        <small>${esc(prod.categoria)}</small>
+        <h4 onclick="verDetalleItem(${prod.id}, 'producto')">${esc(prod.nombre)}</h4>
+        <p>Vida útil: ${esc(prod.vidaUtil)}</p>
         <div class="acciones-card-fila">
-          <strong style="color: var(--verde-principal);">L ${prod.precio.toFixed(2)}</strong>
+          <strong style="color: var(--verde-principal);">${lempiras(prod.precio)}</strong>
           <div>
             <button class="btn-secundario" onclick="verDetalleItem(${prod.id}, 'producto')">Detalle</button>
             <button class="btn-primario" onclick="agregarAlCarrito(${prod.id}, 'producto')">Agregar</button>
@@ -285,33 +162,30 @@ function renderizarTienda(lista) {
 }
 
 function filtrarTienda() {
-  const texto = document.getElementById("buscador-productos").value.toLowerCase();
+  const texto = document.getElementById("buscador-productos").value.trim().toLowerCase();
   const categoria = document.getElementById("filtro-categoria").value;
 
-  const filtrados = productosFitSnack.filter(p => {
+  renderizarTienda(productosFitSnack.filter(p => {
     const coincideTexto = p.nombre.toLowerCase().includes(texto) || p.descripcion.toLowerCase().includes(texto);
     const coincideCat = categoria === "Todas" || p.categoria === categoria;
     return coincideTexto && coincideCat;
-  });
-
-  renderizarTienda(filtrados);
+  }));
 }
 
-// Renderizar Combos
+// ---------- Combos ----------
 function renderizarCombos() {
-  const contenedor = document.getElementById("lista-combos");
-  contenedor.innerHTML = combosFitSnack.map(combo => `
+  document.getElementById("lista-combos").innerHTML = combosFitSnack.map(combo => `
     <article class="card-horizontal">
       <div class="card-horizontal-img" onclick="verDetalleItem(${combo.id}, 'combo')">
         ${crearHtmlImagen(combo)}
       </div>
       <div class="card-horizontal-info">
-        <small>${combo.categoria}</small>
-        <h4>${combo.nombre}</h4>
-        <p>${combo.descripcion}</p>
+        <small>${esc(combo.categoria)}</small>
+        <h4>${esc(combo.nombre)}</h4>
+        <p>${esc(combo.descripcion)}</p>
         <div class="acciones-card-fila">
           <div>
-            <strong style="color: var(--verde-principal);">L ${combo.precio.toFixed(2)}</strong>
+            <strong style="color: var(--verde-principal);">${lempiras(combo.precio)}</strong>
             <span class="precio-anterior">L ${combo.precioAnterior}</span>
           </div>
           <button class="btn-primario" onclick="agregarAlCarrito(${combo.id}, 'combo')">Agregar combo</button>
@@ -321,23 +195,22 @@ function renderizarCombos() {
   `).join("");
 }
 
-// Modal de detalle al tocar producto o combo
+// ---------- Detalle ----------
 function verDetalleItem(id, tipo) {
   const fuente = tipo === "combo" ? combosFitSnack : productosFitSnack;
   const item = fuente.find(x => x.id === id);
   if (!item) return;
 
-  const contenido = document.getElementById("contenido-modal-detalle");
-  contenido.innerHTML = `
+  document.getElementById("contenido-modal-detalle").innerHTML = `
     <div style="height:170px; background:var(--verde-suave); border-radius:14px; overflow:hidden; margin-bottom:14px; display:flex; align-items:center; justify-content:center;">
       ${crearHtmlImagen(item)}
     </div>
-    <span class="badge-verde">${item.categoria}</span>
-    <h3 style="margin-bottom:6px;">${item.nombre}</h3>
-    <p style="font-size:0.9rem; color:var(--texto-gris); margin-bottom:10px;">${item.descripcion}</p>
-    <p style="font-size:0.85rem; margin-bottom:14px;"><strong>Conservación / Vida útil:</strong> ${item.vidaUtil}</p>
+    <span class="badge-verde">${esc(item.categoria)}</span>
+    <h3 style="margin-bottom:6px;">${esc(item.nombre)}</h3>
+    <p style="font-size:0.9rem; color:var(--texto-gris); margin-bottom:10px;">${esc(item.descripcion)}</p>
+    <p style="font-size:0.85rem; margin-bottom:14px;"><strong>Conservación / Vida útil:</strong> ${esc(item.vidaUtil)}</p>
     <div style="display:flex; justify-content:space-between; align-items:center;">
-      <strong style="font-size:1.2rem; color:var(--verde-principal);">L ${item.precio.toFixed(2)}</strong>
+      <strong style="font-size:1.2rem; color:var(--verde-principal);">${lempiras(item.precio)}</strong>
       <button class="btn-primario" onclick="agregarAlCarrito(${item.id}, '${tipo}'); cerrarModal('modal-detalle');">
         Agregar al carrito
       </button>
@@ -346,7 +219,7 @@ function verDetalleItem(id, tipo) {
   document.getElementById("modal-detalle").classList.remove("oculto");
 }
 
-// Lógica del Carrito
+// ---------- Carrito ----------
 function agregarAlCarrito(id, tipo) {
   const fuente = tipo === "combo" ? combosFitSnack : productosFitSnack;
   const item = fuente.find(x => x.id === id);
@@ -356,12 +229,7 @@ function agregarAlCarrito(id, tipo) {
   if (existente) {
     existente.cantidad += 1;
   } else {
-    carrito.push({
-      id: item.id,
-      nombre: item.nombre,
-      precio: item.precio,
-      cantidad: 1
-    });
+    carrito.push({ id: item.id, nombre: item.nombre, precio: item.precio, cantidad: 1 });
   }
 
   guardarCarrito();
@@ -373,33 +241,32 @@ function cambiarCantidadCarrito(id, delta) {
   if (index === -1) return;
 
   carrito[index].cantidad += delta;
-  if (carrito[index].cantidad <= 0) {
-    carrito.splice(index, 1);
-  }
+  if (carrito[index].cantidad <= 0) carrito.splice(index, 1);
   guardarCarrito();
 }
 
 function vaciarCarrito() {
+  if (carrito.length === 0) return;
+  if (!confirm("¿Vaciar todo el carrito?")) return;
   carrito = [];
   guardarCarrito();
   mostrarToast("Carrito vaciado");
 }
 
 function guardarCarrito() {
-  localStorage.setItem("fitsnack_carrito", JSON.stringify(carrito));
+  guardarStorage("fitsnack_carrito", carrito);
   actualizarVistaCarrito();
 }
 
 function actualizarVistaCarrito() {
-  const totalUnidades = carrito.reduce((acc, item) => acc + item.cantidad, 0);
-  document.getElementById("contador-carrito").textContent = totalUnidades;
+  document.getElementById("contador-carrito").textContent = carrito.reduce((acc, i) => acc + i.cantidad, 0);
 
   const contenedor = document.getElementById("contenedor-items-carrito");
   const btnCheckout = document.getElementById("btn-abrir-checkout");
 
   if (carrito.length === 0) {
     contenedor.innerHTML = `<p style="font-size:0.86rem; color:var(--texto-gris); padding:10px 0;">Tu carrito está vacío. Agrega snacks desde Tienda o Combos.</p>`;
-    document.getElementById("total-carrito-monto").textContent = "L 0.00";
+    document.getElementById("total-carrito-monto").textContent = lempiras(0);
     btnCheckout.disabled = true;
     return;
   }
@@ -411,32 +278,56 @@ function actualizarVistaCarrito() {
     return `
       <div class="item-carrito-fila">
         <div style="flex:1;">
-          <strong style="font-size:0.88rem; display:block;">${item.nombre}</strong>
-          <small style="color:var(--texto-gris);">L ${item.precio.toFixed(2)} c/u</small>
+          <strong style="font-size:0.88rem; display:block;">${esc(item.nombre)}</strong>
+          <small style="color:var(--texto-gris);">${lempiras(item.precio)} c/u</small>
         </div>
         <div class="controles-cantidad">
-          <button class="btn-cant" onclick="cambiarCantidadCarrito(${item.id}, -1)">-</button>
+          <button class="btn-cant" aria-label="Quitar uno" onclick="cambiarCantidadCarrito(${item.id}, -1)">−</button>
           <span>${item.cantidad}</span>
-          <button class="btn-cant" onclick="cambiarCantidadCarrito(${item.id}, 1)">+</button>
+          <button class="btn-cant" aria-label="Agregar uno" onclick="cambiarCantidadCarrito(${item.id}, 1)">+</button>
         </div>
-        <strong style="min-width:65px; text-align:right;">L ${subtotal.toFixed(2)}</strong>
+        <strong style="min-width:70px; text-align:right;">${lempiras(subtotal)}</strong>
       </div>
     `;
   }).join("");
 
-  document.getElementById("total-carrito-monto").textContent = `L ${totalMonto.toFixed(2)}`;
+  document.getElementById("total-carrito-monto").textContent = lempiras(totalMonto);
   btnCheckout.disabled = false;
 }
 
-// Checkout y creación de Pedido
+// ---------- Checkout ----------
+function calcularTotales() {
+  const subtotal = carrito.reduce((acc, c) => acc + c.precio * c.cantidad, 0);
+  const codigo = document.getElementById("pedido-promo").value.trim().toUpperCase();
+  const porcentaje = CODIGOS_PROMO[codigo] || 0;
+  const descuento = subtotal * porcentaje;
+  return { subtotal, codigo, porcentaje, descuento, total: subtotal - descuento };
+}
+
+function renderizarResumenCheckout() {
+  const { subtotal, codigo, porcentaje, descuento, total } = calcularTotales();
+  const lineas = carrito.map(c => `${esc(c.nombre)} × ${c.cantidad} (${lempiras(c.precio * c.cantidad)})`).join("<br>");
+
+  let promoHtml = "";
+  if (porcentaje > 0) {
+    promoHtml = `<br>Descuento ${esc(codigo)} (${Math.round(porcentaje * 100)}%): −${lempiras(descuento)}`;
+  } else if (codigo) {
+    promoHtml = `<br><span style="color:var(--peligro);">Ese código no es válido.</span>`;
+  }
+
+  document.getElementById("resumen-checkout-items").innerHTML =
+    `${lineas}<hr style="margin:6px 0; border:none; border-top:1px solid #ddd;">Subtotal: ${lempiras(subtotal)}${promoHtml}<br><strong>Total: ${lempiras(total)}</strong>`;
+}
+
 function abrirModalPedido() {
   if (carrito.length === 0) return;
-
-  const resumenTexto = carrito.map(c => `${c.nombre} × ${c.cantidad} (L ${(c.precio * c.cantidad).toFixed(2)})`).join("<br>");
-  const total = carrito.reduce((acc, c) => acc + (c.precio * c.cantidad), 0);
-
-  document.getElementById("resumen-checkout-items").innerHTML = `${resumenTexto}<hr style="margin:6px 0; border:none; border-top:1px solid #ddd;"><strong>Total: L ${total.toFixed(2)}</strong>`;
+  renderizarResumenCheckout();
   document.getElementById("modal-checkout").classList.remove("oculto");
+}
+
+function generarIdPedido() {
+  const numeros = pedidosHistorial.map(p => parseInt(String(p.id).replace(/\D/g, ""), 10) || 0);
+  return `PED-${Math.max(100, ...numeros) + 1}`;
 }
 
 function procesarPedido(event) {
@@ -445,28 +336,33 @@ function procesarPedido(event) {
 
   const cliente = document.getElementById("pedido-cliente").value.trim();
   const telefono = document.getElementById("pedido-telefono").value.trim();
+  const direccion = document.getElementById("pedido-direccion").value.trim();
   const pago = document.getElementById("pedido-pago").value;
-  const promo = document.getElementById("pedido-promo").value.trim().toUpperCase();
 
-  let total = carrito.reduce((acc, c) => acc + (c.precio * c.cantidad), 0);
-  if (promo === "FIT10") {
-    total = total * 0.90;
+  if (telefono.replace(/\D/g, "").length < 8) {
+    mostrarToast("Escribe un teléfono de 8 dígitos");
+    return;
+  }
+
+  const { codigo, porcentaje, total } = calcularTotales();
+  if (codigo && porcentaje === 0) {
+    mostrarToast("El código promocional no es válido");
+    return;
   }
 
   const detalle = carrito.map(c => `${c.nombre} × ${c.cantidad}`).join(", ");
+  const ahora = new Date();
   const nuevoPedido = {
-    id: `PED-${Math.floor(105 + Math.random() * 890)}`,
-    cliente,
-    telefono,
-    detalle,
-    total,
-    pago,
+    id: generarIdPedido(),
+    cliente, telefono, direccion, detalle, total, pago,
+    promo: porcentaje > 0 ? codigo : "",
     estado: "Pendiente",
-    fecha: "Recién creado"
+    fecha: ahora.toLocaleDateString("es-HN", { day: "numeric", month: "short" }) + ", " +
+           ahora.toLocaleTimeString("es-HN", { hour: "2-digit", minute: "2-digit" })
   };
 
   pedidosHistorial.unshift(nuevoPedido);
-  localStorage.setItem("fitsnack_pedidos", JSON.stringify(pedidosHistorial));
+  guardarStorage("fitsnack_pedidos", pedidosHistorial);
 
   carrito = [];
   guardarCarrito();
@@ -474,47 +370,67 @@ function procesarPedido(event) {
 
   document.getElementById("form-nuevo-pedido").reset();
   cerrarModal("modal-checkout");
-  mostrarToast("¡Pedido registrado correctamente!");
+  mostrarToast(`¡Pedido ${nuevoPedido.id} registrado!`);
+  cambiarVista("pedido");
+
+  // Envía el pedido por WhatsApp al negocio (solo si configuraste el número)
+  if (NUMERO_WHATSAPP) {
+    const mensaje = `Hola Fit Snack, quiero hacer este pedido (${nuevoPedido.id}):\n${detalle}\nTotal: ${lempiras(total)}\nPago: ${pago}\nNombre: ${cliente}\nTeléfono: ${telefono}\nDirección: ${direccion}`;
+    window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`, "_blank");
+  }
 }
 
 function renderizarHistorialPedidos() {
   const contenedor = document.getElementById("lista-pedidos-historial");
+  if (pedidosHistorial.length === 0) {
+    contenedor.innerHTML = `<p class="card-blanca">Aún no tienes pedidos. Cuando confirmes uno, aparecerá aquí.</p>`;
+    return;
+  }
+
   contenedor.innerHTML = pedidosHistorial.map(ped => {
     const claseEstado = ped.estado === "Entregado" ? "estado-entregado" : (ped.estado === "Confirmado" ? "estado-confirmado" : "estado-pendiente");
     return `
       <div class="card-blanca">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-          <strong>${ped.cliente} <small style="color:var(--texto-gris);">(${ped.id})</small></strong>
-          <span class="estado-pedido ${claseEstado}">${ped.estado}</span>
+          <strong>${esc(ped.cliente)} <small style="color:var(--texto-gris);">(${esc(ped.id)})</small></strong>
+          <span class="estado-pedido ${claseEstado}">${esc(ped.estado)}</span>
         </div>
-        <p style="font-size:0.84rem; color:var(--texto-gris); margin-bottom:4px;">${ped.detalle}</p>
-        <small style="color:var(--texto-gris);">${ped.fecha} • ${ped.pago} • <strong>L ${ped.total.toFixed(2)}</strong></small>
+        <p style="font-size:0.84rem; color:var(--texto-gris); margin-bottom:4px;">${esc(ped.detalle)}</p>
+        ${ped.direccion ? `<p style="font-size:0.8rem; margin-bottom:4px;">📍 ${esc(ped.direccion)}</p>` : ""}
+        <small style="color:var(--texto-gris);">${esc(ped.fecha)} • ${esc(ped.pago)}${ped.promo ? ` • ${esc(ped.promo)}` : ""} • <strong>${lempiras(ped.total)}</strong></small>
       </div>
     `;
   }).join("");
 }
 
+// ---------- Contacto ----------
 function enviarMensajeContacto(event) {
   event.preventDefault();
+  const nombre = document.getElementById("contacto-nombre").value.trim();
+  const consulta = document.getElementById("contacto-mensaje").value.trim();
+
+  if (NUMERO_WHATSAPP) {
+    const mensaje = `Hola Fit Snack, soy ${nombre}. ${consulta}`;
+    window.open(`https://wa.me/${NUMERO_WHATSAPP}?text=${encodeURIComponent(mensaje)}`, "_blank");
+  }
   event.target.reset();
   mostrarToast("Mensaje enviado al equipo de Fit Snack");
 }
 
+// ---------- Modales y avisos ----------
 function cerrarModal(idModal) {
   document.getElementById(idModal).classList.add("oculto");
 }
 
 function cerrarModalSiFondo(event, idModal) {
-  if (event.target.id === idModal) {
-    cerrarModal(idModal);
-  }
+  if (event.target.id === idModal) cerrarModal(idModal);
 }
 
+let temporizadorToast;
 function mostrarToast(mensaje) {
   const toast = document.getElementById("toast-notificacion");
   toast.textContent = mensaje;
   toast.classList.remove("oculto");
-  setTimeout(() => {
-    toast.classList.add("oculto");
-  }, 2400);
+  clearTimeout(temporizadorToast);
+  temporizadorToast = setTimeout(() => toast.classList.add("oculto"), 2400);
 }
