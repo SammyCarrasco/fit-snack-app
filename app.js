@@ -27,26 +27,27 @@ function guardarStorage(clave, valor) {
   try { localStorage.setItem(clave, JSON.stringify(valor)); } catch (e) { /* almacenamiento lleno o bloqueado */ }
 }
 
-// ---------- Catálogo (Precios en Lempiras) ----------
+// ---------- Catálogo (precios tomados del sitio web de Fit Snack, en Lempiras) ----------
 // [id, nombre, categoría, precio, precio anterior, vida útil, descripción, imagen, emoji]
 const productosFitSnack = [
-  [1, "Hummus Clásico con Bastones de Zanahoria", "Dips y Untables", 70, 85, "3-5 días refrigerado", "Dip cremoso de garbanzo con tahini artesanal, limón y bastones frescos de zanahoria.", "img/hummus.jpg", "🥕"],
-  [2, "Bolitas Energéticas de Cacao y Avena", "Bocaditos Fit", 50, null, "21 días", "Trufas energéticas crudas con avena integral, cacao nibs, chía y miel pura.", "img/bolitas.jpg", "🍫"],
-  [3, "Chips Horneadas de Camote", "Chips y Deshidratados", 38, 50, "45 días", "Finas láminas de camote hondureño horneadas con un toque de sal marina.", "img/camote.jpg", "🍠"],
-  [4, "Granola Artesanal Miel y Almendras", "Granolas y Cereales", 99, 120, "30 días", "Hojuelas de avena tostadas con almendras fileteadas, semillas de calabaza y miel.", "img/granola.jpg", "🥣"],
-  [5, "Yogur Griego Natural con Frutos Rojos", "Lácteos Naturales", 75, null, "7 días refrigerado", "Yogur griego alto en proteína sin azúcar refinada con compota natural de fresas y moras.", "img/yogur.jpg", "🍓"],
-  [6, "Mix de Frutos Secos y Semillas", "Bocaditos Fit", 65, 80, "60 días", "Mezcla balanceada de marañón hondureño, almendras, nueces y arándanos deshidratados.", "img/mix-frutos.jpg", "🥜"],
-  [7, "Chips de Plátano Verde al Horno", "Chips y Deshidratados", 35, null, "45 días", "Tostones crujientes de plátano verde sin fritura, ideales para acompañar con dips.", "img/platano.jpg", "🍌"],
-  [8, "Guacamole Fresco con Totopos Horneados", "Dips y Untables", 85, 95, "2 días refrigerado", "Aguacate Hass machacado al momento con pico de gallo y totopos de maíz horneados.", "img/guacamole.jpg", "🥑"],
-  [9, "Barras de Avena y Mantequilla de Maní", "Granolas y Cereales", 45, null, "25 días", "Barra energética horneada con maní 100% natural, avena y chispas de chocolate oscuro.", "img/barra-mani.jpg", "🌾"],
-  [10, "Pudín de Chía con Mango Tropical", "Lácteos Naturales", 68, null, "4 días refrigerado", "Semillas de chía hidratadas en leche de coco con puré de mango maduro de temporada.", "img/chia-mango.jpg", "🥭"]
+  [1, "Granola Natural 250 g", "Granolas y Cereales", 75, 150, "Indicada en el empaque", "Granola natural en presentación de 250 g. Oferta de lanzamiento: 50% más barata.", "img/granola-natural.jpg", "🥣"],
+  [2, "Granola Artesanal Miel 250 g", "Granolas y Cereales", 50, null, "Indicada en el empaque", "Granola artesanal con miel en presentación de 250 g.", "img/granola.jpg", "🍯"],
+  [3, "Granola Chocolate Amargo 150 g", "Granolas y Cereales", 30, null, "Indicada en el empaque", "Granola con chocolate amargo en presentación de 150 g.", "img/granola-chocolate.jpg", "🍫"],
+  [4, "Granola Frutos Rojos 150 g", "Granolas y Cereales", 35, null, "Indicada en el empaque", "Granola con frutos rojos en presentación de 150 g.", "img/granola-frutos-rojos.jpg", "🍓"],
+  [5, "Barra Avena Cacao Crunch 40 g", "Barras & Yogures", 18, null, "Indicada en el empaque", "Barra de avena con cacao crujiente de 40 g.", "img/barra-cacao.jpg", "🍫"],
+  [6, "Barra Avena Mantequilla Maní 40 g", "Barras & Yogures", 18, null, "Indicada en el empaque", "Barra de avena con mantequilla de maní de 40 g.", "img/barra-mani.jpg", "🥜"],
+  [7, "Barra Avena Manzana 40 g", "Barras & Yogures", 18, null, "Indicada en el empaque", "Barra de avena con manzana de 40 g.", "img/barra-manzana.jpg", "🍎"],
+  [8, "Almendras con Sal 100 g", "Mixes", 40, null, "Indicada en el empaque", "Almendras con sal en presentación de 100 g.", "img/almendras.jpg", "🌰"],
+  [9, "Nueces Pecanas Tostadas 100 g", "Mixes", 55, null, "Indicada en el empaque", "Nueces pecanas tostadas en presentación de 100 g.", "img/nueces-pecanas.jpg", "🌰"],
+  [10, "Mix Frutos Secos 100 g", "Mixes", 30, null, "Indicada en el empaque", "Mezcla de frutos secos en presentación de 100 g.", "img/mix-frutos.jpg", "🥜"]
 ].map(([id, nombre, categoria, precio, precioAnterior, vidaUtil, descripcion, imagen, emoji]) =>
   ({ id, nombre, categoria, precio, precioAnterior, enOferta: precioAnterior !== null, vidaUtil, descripcion, imagen, emoji }));
 
+// El precio anterior de cada combo es la suma de sus productos por separado
 const combosFitSnack = [
-  [101, "Combo Oficina Fit (5 Días)", "Combo Semanal", 290, 340, "Consumo semanal", "Incluye 2 Chips de Camote, 1 Mix de Frutos Secos, 1 Bolitas Energéticas y 1 Hummus Clásico.", "img/combo-oficina.jpg", "💼"],
-  [102, "Combo Dips & Crunch", "Para Compartir", 145, 170, "3 días refrigerado", "1 Hummus Clásico + 1 Guacamole Fresco + 2 bolsas de Chips de Plátano Verde al Horno.", "img/combo-dips.jpg", "🥗"],
-  [103, "Combo Desayuno Saludable", "Mañanas Fit", 160, 185, "7 días refrigerado", "1 Granola Artesanal de Miel + 1 Yogur Griego con Frutos Rojos + 1 Pudín de Chía.", "img/combo-desayuno.jpg", "☀️"]
+  [101, "Combo Energía", "Combo • 390 g", 120, 133, "Indicada en el empaque", "Incluye Granola Natural 250 g, Almendras con Sal 100 g y Barra Avena Cacao Crunch 40 g.", "img/combo-energia.jpg", "⚡"],
+  [102, "Combo Barras", "Combo • 120 g", 50, 54, "Indicada en el empaque", "Incluye Barra Avena Cacao Crunch 40 g, Barra Avena Mantequilla Maní 40 g y Barra Avena Manzana 40 g.", "img/combo-barras.jpg", "🌾"],
+  [103, "Combo Frutos Secos", "Combo • 300 g", 110, 125, "Indicada en el empaque", "Incluye Mix Frutos Secos 100 g, Almendras con Sal 100 g y Nueces Pecanas Tostadas 100 g.", "img/combo-frutos-secos.jpg", "🥜"]
 ].map(([id, nombre, categoria, precio, precioAnterior, vidaUtil, descripcion, imagen, emoji]) =>
   ({ id, nombre, categoria, precio, precioAnterior, vidaUtil, descripcion, imagen, emoji }));
 
